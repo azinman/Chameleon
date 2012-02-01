@@ -52,6 +52,7 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize);
     CGPoint _lastTouchLocation;
     UIScrollViewIndicatorStyle _indicatorStyle;
     NSTimer *_fadeTimer;
+    BOOL _showGutter;
     BOOL _alwaysVisible;
 }
 
@@ -61,6 +62,7 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize);
 - (void)flash;
 - (void)quickFlash;
 
+@property (nonatomic, assign) BOOL showGutter;
 @property (nonatomic, assign) BOOL alwaysVisible;		// if YES, -flash has no effect on the scroller's alpha, setting YES fades alpha to 1, setting NO fades it out if it was visible
 @property (nonatomic, assign) id<_UIScrollerDelegate> delegate;
 @property (nonatomic, assign) CGFloat contentSize;		// used to calulate how big the slider knob should be (uses its own frame height/width and compares against this value)

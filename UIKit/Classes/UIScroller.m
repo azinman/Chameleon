@@ -36,7 +36,7 @@
 #import <AppKit/NSWindow.h>
 
 
-static const BOOL _UIScrollerGutterEnabled = NO;
+static const BOOL _UIScrollerGutterEnabled = YES;
 static const BOOL _UIScrollerJumpToSpotThatIsClicked = NO;	// _UIScrollerGutterEnabled must be YES for this to have any meaning
 static const CGFloat _UIScrollerMinimumAlpha = 0;
 
@@ -55,7 +55,7 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize)
 
 @implementation UIScroller
 @synthesize delegate=_delegate, contentOffset=_contentOffset, contentSize=_contentSize;
-@synthesize indicatorStyle=_indicatorStyle, alwaysVisible=_alwaysVisible;
+@synthesize indicatorStyle=_indicatorStyle, showGutter = _showGutter, alwaysVisible=_alwaysVisible;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -84,7 +84,9 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize)
                      animations:^(void) {
                          self.alpha = _UIScrollerMinimumAlpha;
                      }
-                     completion:NULL];
+                     completion:^(BOOL finished) {
+                         self.showGutter = NO;
+                     }];
 }
 
 - (void)_fadeOutAfterDelay:(NSTimeInterval)time
@@ -122,6 +124,15 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize)
 
     if (!_alwaysVisible) {
         [self _fadeOutAfterDelay:0.5];
+    }
+}
+
+- (void)setShowGutter:(BOOL)showGutter
+{
+    if (_UIScrollerGutterEnabled && _showGutter != showGutter)
+    {
+        _showGutter = showGutter;
+        [self setNeedsDisplay];
     }
 }
 
@@ -235,21 +246,31 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize)
 - (void)drawRect:(CGRect)rect
 {
     CGRect knobRect = [self knobRect];
+    CGRect bounds = [self bounds];
     
     if (_isVertical) {
         knobRect.origin.y += 2;
         knobRect.size.height -= 4;
         knobRect.origin.x += 1;
         knobRect.size.width -= 3;
+
+        bounds.origin.y += 2;
+        bounds.origin.x += 1;
+        bounds.size.width = knobRect.size.width;
+        bounds.size.height -= 4;
     } else {
         knobRect.origin.y += 1;
         knobRect.size.height -= 3;
         knobRect.origin.x += 2;
         knobRect.size.width -= 4;
+
+        bounds.origin.y += 1;
+        bounds.origin.x += 2;
+        bounds.size.width -= 4;
+        bounds.size.height = knobRect.size.height;
     }
 
-    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:knobRect cornerRadius:4];
-
+    UIBezierPath *knobPath = [UIBezierPath bezierPathWithRoundedRect:knobRect cornerRadius:4];
     if (_indicatorStyle == UIScrollViewIndicatorStyleBlack) {
         [[[UIColor blackColor] colorWithAlphaComponent:0.5] setFill];
     } else if (_indicatorStyle == UIScrollViewIndicatorStyleWhite) {
@@ -257,11 +278,26 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize)
     } else {
         [[[UIColor blackColor] colorWithAlphaComponent:0.5] setFill];
         [[[UIColor whiteColor] colorWithAlphaComponent:0.3] setStroke];
-        [path setLineWidth:1.8];
-        [path stroke];
+        [knobPath setLineWidth:1.8];
+        [knobPath stroke];
     }
-    
-    [path fill];
+    [knobPath fill];
+
+    if (_UIScrollerGutterEnabled && _showGutter)
+    {
+        UIBezierPath *pagerPath = [UIBezierPath bezierPathWithRoundedRect:bounds cornerRadius:4];
+        if (_indicatorStyle == UIScrollViewIndicatorStyleBlack) {
+            [[[UIColor blackColor] colorWithAlphaComponent:0.15] setFill];
+        } else if (_indicatorStyle == UIScrollViewIndicatorStyleWhite) {
+            [[[UIColor whiteColor] colorWithAlphaComponent:0.15] setFill];
+        } else {
+            [[[UIColor blackColor] colorWithAlphaComponent:0.15] setFill];
+            [[[UIColor whiteColor] colorWithAlphaComponent:0.15] setStroke];
+            [pagerPath setLineWidth:1.8];
+            [pagerPath stroke];
+        }
+        [pagerPath fill];
+    }
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
