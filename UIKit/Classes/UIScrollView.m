@@ -378,10 +378,15 @@ const float UIScrollViewDecelerationRateFast = 0.99;
     const BOOL shouldShowHorizontal = CGRectContainsPoint(CGRectInset(_horizontalScroller.frame, -scrollerSize, -scrollerSize), point);
     const BOOL shouldShowVertical = CGRectContainsPoint(CGRectInset(_verticalScroller.frame, -scrollerSize, -scrollerSize), point);
     const BOOL shouldShowScrollers = (shouldShowVertical || shouldShowHorizontal || _decelerating);
-    
+
+    if (_horizontalScroller.alpha > 0 || _verticalScroller.alpha > 0) {
+        _horizontalScroller.alwaysVisible = YES;
+        _verticalScroller.alwaysVisible = YES;
+    }
+
     _horizontalScroller.alwaysVisible = shouldShowScrollers;
     _verticalScroller.alwaysVisible = shouldShowScrollers;
-    
+
     [super mouseMoved:delta withEvent:event];
 }
 

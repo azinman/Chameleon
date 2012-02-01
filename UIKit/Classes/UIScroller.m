@@ -132,7 +132,7 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize)
     if (_alwaysVisible) {
         [self _fadeIn];
     } else if (self.alpha > _UIScrollerMinimumAlpha && !_fadeTimer) {
-        [self _fadeOut];
+        [self _fadeOutAfterDelay:0.67];
     }
 }
 
