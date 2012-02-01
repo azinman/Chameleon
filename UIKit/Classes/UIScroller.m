@@ -179,7 +179,11 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize)
 
 - (void)setContentOffset:(CGFloat)newOffset
 {
-    _contentOffset = MIN(MAX(0,newOffset),_contentSize);
+    const CGRect bounds = self.bounds;
+    const CGFloat dimension = MAX(bounds.size.width, bounds.size.height);
+    const CGFloat maxContentSize = MAX(1,(_contentSize-dimension));
+
+    _contentOffset = MIN(MAX(0,newOffset),maxContentSize);
     [self setNeedsDisplay];
 }
 
