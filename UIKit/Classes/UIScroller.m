@@ -31,6 +31,9 @@
 #import "UITouch.h"
 #import "UIBezierPath.h"
 #import "UIColor.h"
+#import "AppKitIntegration.h"
+#import <AppKit/NSEvent.h>
+#import <AppKit/NSWindow.h>
 
 
 static const BOOL _UIScrollerGutterEnabled = NO;
@@ -229,12 +232,6 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize)
     }
 }
 
-- (void)startHoldPaging
-{
-    [_holdTimer invalidate];
-    _holdTimer = [NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(autoPageContent) userInfo:nil repeats:YES];
-}
-
 - (void)drawRect:(CGRect)rect
 {
     CGRect knobRect = [self knobRect];
@@ -271,6 +268,7 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize)
 {
     _lastTouchLocation = [[touches anyObject] locationInView:self];
     const CGRect knobRect = [self knobRect];
+    BOOL shouldGeneratePeriodicEvents = NO;
 
     if (CGRectContainsPoint(knobRect,_lastTouchLocation)) {
         if (_isVertical) {
@@ -282,7 +280,6 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize)
         [_delegate _UIScrollerDidBeginDragging:self withEvent:event];
     } else if (_UIScrollerGutterEnabled) {
         [_delegate _UIScrollerDidBeginDragging:self withEvent:event];
-
         if (_UIScrollerJumpToSpotThatIsClicked) {
             _dragOffset = [self knobSize] / 2.f;
             _draggingKnob = YES;
@@ -290,9 +287,38 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize)
             [_delegate _UIScroller:self contentOffsetDidChange:_contentOffset];
         } else {
             [self autoPageContent];
-            _holdTimer = [NSTimer scheduledTimerWithTimeInterval:0.33 target:self selector:@selector(startHoldPaging) userInfo:nil repeats:NO];
+            shouldGeneratePeriodicEvents = YES;
         }
+    } else {
+        return;
     }
+
+    _tracking = YES;
+    if (shouldGeneratePeriodicEvents)
+        [NSEvent startPeriodicEventsAfterDelay:0.33 withPeriod:0.05];
+
+    NSEvent *theEvent = nil;
+    UIScreen *screen = (UIScreen *)[[self window] screen];
+    NSWindow *window = (NSWindow *)[[screen UIKitView] window];
+    while ((theEvent = [window nextEventMatchingMask:NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSKeyDownMask | NSPeriodicMask])) {
+        if ([theEvent type] == NSLeftMouseUp) {
+            [[screen UIKitView] mouseUp:theEvent];
+            break;
+        }
+        else if ([theEvent type] == NSPeriodic) {
+            [self autoPageContent];
+            continue;
+        }
+        else if ([theEvent type] == NSKeyDown) {
+            NSBeep();
+            continue;
+        }
+
+        [[screen UIKitView] mouseMoved:theEvent];
+    }
+
+    if (shouldGeneratePeriodicEvents)
+        [NSEvent stopPeriodicEvents];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -307,13 +333,10 @@ CGFloat UIScrollerWidthForBoundsSize(CGSize boundsSize)
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (_draggingKnob) {
+    if (_draggingKnob || _tracking) {
         _draggingKnob = NO;
         [_delegate _UIScrollerDidEndDragging:self withEvent:event];
-    } else if (_holdTimer) {
-        [_delegate _UIScrollerDidEndDragging:self withEvent:event];
-        [_holdTimer invalidate];
-        _holdTimer = nil;
+        _tracking = NO;
     }
 }
 
