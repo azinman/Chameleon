@@ -216,6 +216,11 @@ extern CGFloat _UITableViewDefaultRowHeight;
     [self setHighlighted:highlighted animated:NO];
 }
 
+- (void)setEditing:(BOOL)editing animated:(BOOL)animated
+{
+    NSLog(@"Table view editing is not yet supported.");
+}
+
 - (void)setBackgroundView:(UIView *)theBackgroundView
 {
     if (theBackgroundView != _backgroundView) {
@@ -240,6 +245,29 @@ extern CGFloat _UITableViewDefaultRowHeight;
 
 - (void)prepareForReuse
 {
+}
+
+#pragma mark - State Changes
+ /* 
+ Subclasses of UITableViewCell can implement this method to animate additional changes to a cell 
+ when it is changing state. UITableViewCell calls this method whenever a cell transitions between 
+ states, such as from a normal state (the default) to editing mode. The custom cell can set up 
+ and position any new views that appear with the new state. The cell then receives a 
+ layoutSubviews message (UIView) in which it can position these new views in their final locations 
+ for the new state. Subclasses must always call super when overriding this method.
+ 
+ Note that when the user swipes a cell to delete it, the cell transitions to the state identified 
+ by the UITableViewCellStateShowingDeleteConfirmationMask constant but the 
+ UITableViewCellStateShowingEditControlMask is not set.
+ */
+- (void)willTransitionToState:(UITableViewCellStateMask)state
+{
+    
+}
+
+- (void)didTransitionToState:(UITableViewCellStateMask)state
+{
+    
 }
 
 @end

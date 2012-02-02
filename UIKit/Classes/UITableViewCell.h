@@ -61,6 +61,12 @@ typedef enum {
     UITableViewCellEditingStyleInsert
 } UITableViewCellEditingStyle;
 
+typedef enum {
+    UITableViewCellStateDefaultMask                     = 0,
+    UITableViewCellStateShowingEditControlMask          = 1 << 0,
+    UITableViewCellStateShowingDeleteConfirmationMask   = 1 << 1
+} UITableViewCellStateMask;
+
 @class UITableViewCellSeparator, UILabel, UIImageView;
 
 @interface UITableViewCell : UIView {
@@ -89,6 +95,7 @@ typedef enum {
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier;
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated;
 - (void)setHighlighted:(BOOL)highlighted animated:(BOOL)animated;
+- (void)setEditing:(BOOL)editing animated:(BOOL)animated;  // Not yet implemented
 - (void)prepareForReuse;
 
 @property (nonatomic, readonly, retain) UIView *contentView;
