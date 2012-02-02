@@ -46,6 +46,7 @@
 @synthesize modalViewController=_modalViewController, parentViewController=_parentViewController;
 @synthesize modalTransitionStyle=_modalTransitionStyle, hidesBottomBarWhenPushed=_hidesBottomBarWhenPushed;
 @synthesize searchDisplayController=_searchDisplayController, tabBarItem=_tabBarItem, tabBarController=_tabBarController;
+@synthesize childViewControllers = _childViewControllers;
 
 - (id)init
 {
@@ -288,6 +289,58 @@
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"<%@: %p; title = %@; view = %@>", [self className], self, self.title, self.view];
+}
+
+#pragma mark - Child View Controllers
+// The view controller is first removed from its parent before being added as a child.
+- (void)addChildViewController:(UIViewController *)childController
+{
+    [childController willMoveToParentViewController: self];
+    
+    [childController _setParentViewController: self];
+    [_childViewControllers addObject: childController];
+    
+    [childController didMoveToParentViewController: self];
+}
+
+- (void)removeFromParentViewController
+{
+    [self willMoveToParentViewController: nil];
+    
+    [self _setParentViewController: nil];
+    
+    [self didMoveToParentViewController: nil];    
+}
+
+//Called before adding the receiver as a child of another view controller, or removing it from another view controller.
+
+- (void)willMoveToParentViewController:(UIViewController *)parent
+{
+    
+}
+
+//Called after adding the receiver as a child of another view controller, or removing it from another view controller.
+- (void)didMoveToParentViewController:(UIViewController *)parent
+{
+    
+}
+
+// Transitions between two of the view controller’s child view controllers.
+- (void)transitionFromViewController:(UIViewController *)fromViewController toViewController:(UIViewController *)toViewController duration:(NSTimeInterval)duration options:(UIViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^)(BOOL finished))completion
+{
+    BOOL animated = duration > 0;
+    [fromViewController viewWillDisappear: animated];
+    [toViewController viewWillAppear: animated];
+    [UIView animateWithDuration:duration
+                     animations:animations
+                     completion:^(BOOL finished) {
+                         if (completion) {
+                             completion(finished);
+                         }
+                         [fromViewController viewDidDisappear: animated];
+                         [toViewController viewDidDisappear: animated];
+                     }
+     ];
 }
 
 @end

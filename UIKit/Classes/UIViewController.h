@@ -97,6 +97,11 @@ typedef enum {
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration;
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
 
+- (void)addChildViewController:(UIViewController *)childController;
+- (void)removeFromParentViewController;
+- (void)willMoveToParentViewController:(UIViewController *)parent;
+- (void)didMoveToParentViewController:(UIViewController *)parent;
+
 
 @property (nonatomic, readonly, copy) NSString *nibName;		// always returns nil
 @property (nonatomic, readonly, retain) NSBundle *nibBundle;	// always returns nil
@@ -124,5 +129,8 @@ typedef enum {
 // stubs
 @property (nonatomic, retain) UITabBarItem *tabBarItem;
 @property (nonatomic, readonly, retain) UITabBarController *tabBarController;
+
+@property (nonatomic, readonly) NSArray *childViewControllers;
+
 
 @end
