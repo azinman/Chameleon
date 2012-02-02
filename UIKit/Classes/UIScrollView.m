@@ -60,6 +60,7 @@ const float UIScrollViewDecelerationRateFast = 0.99;
 @synthesize canCancelContentTouches=_canCancelContentTouches, bouncesZoom=_bouncesZoom, zooming=_zooming;
 @synthesize alwaysBounceVertical=_alwaysBounceVertical, alwaysBounceHorizontal=_alwaysBounceHorizontal, bounces=_bounces;
 @synthesize decelerationRate=_decelerationRate, scrollWheelGestureRecognizer=_scrollWheelGestureRecognizer, panGestureRecognizer=_panGestureRecognizer;
+@synthesize directionalLockEnabled = _directionalLockEnabled;
 
 - (id)initWithFrame:(CGRect)frame
 {

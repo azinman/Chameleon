@@ -145,5 +145,7 @@ extern const float UIScrollViewDecelerationRateFast;
 @property (nonatomic, readonly) UIPanGestureRecognizer *panGestureRecognizer;
 @property (nonatomic, readonly) UIScrollWheelGestureRecognizer *scrollWheelGestureRecognizer;   // non-standard
 
+@property(nonatomic, getter=isDirectionalLockEnabled) BOOL directionalLockEnabled; // not yet implemented
+
 
 @end
