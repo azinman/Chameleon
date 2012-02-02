@@ -28,6 +28,7 @@
  */
 
 #import "UIView.h"
+#import "UIImage.h"
 
 typedef enum {
     UIProgressViewStyleDefault,
@@ -43,5 +44,8 @@ typedef enum {
 
 @property (nonatomic) UIProgressViewStyle progressViewStyle;
 @property (nonatomic) float progress;
+@property (nonatomic, retain) UIImage *trackImage;
+@property (nonatomic, retain) UIImage *progressImage;
+
 
 @end

@@ -31,6 +31,7 @@
 
 @implementation UIProgressView
 @synthesize progressViewStyle=_progressViewStyle, progress=_progress;
+@synthesize trackImage = _trackImage, progressImage = _progressImage;
 
 - (id)initWithProgressViewStyle:(UIProgressViewStyle)style
 {
