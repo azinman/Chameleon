@@ -181,4 +181,6 @@ typedef enum {
 @property (nonatomic) CGFloat sectionHeaderHeight;
 @property (nonatomic) CGFloat sectionFooterHeight;
 
+@property(nonatomic, readwrite, retain) UIView *backgroundView; // not yet implemented
+
 @end
