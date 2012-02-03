@@ -31,6 +31,52 @@
 
 const UIEdgeInsets UIEdgeInsetsZero = {0,0,0,0};
 
+CGPoint CGPointFromString(NSString *string)
+{
+    /* We parse floats and then convert them to CGFloat to avoid assuming CGFloat is double (which it is, if we are running Lion) */
+    float x, y;
+    if ( 2 == sscanf( [string UTF8String], "{%f, %f}", &x, &y ) )
+        return CGPointMake( x, y );
+    return CGPointZero;
+}
+
+CGRect CGRectFromString (NSString *string)
+{
+    /* Parse floats and then convert them to CGFloat to avoid assuming CGFloat is double (which it is, if we are running Lion) */
+    float x, y, w, h;
+    if ( 4 == sscanf( [string UTF8String], "{%f, %f, %f, %f}", &x, &y, &w, &h ) )
+        return CGRectMake( x, y, w, h );
+    return CGRectZero; 
+}
+
+CGSize CGSizeFromString(NSString *string)
+{
+    /* Parse floats and then convert them to CGFloat to avoid assuming CGFloat is double (which it is, if we are running Lion) */
+    float w, h;
+    if ( 2 == sscanf( [string UTF8String], "{%f, %f}", &w, &h ) )
+        return CGSizeMake( w, h );
+    return CGSizeZero;
+}
+
+CGAffineTransform CGAffineTransformFromString (NSString *string)
+{
+    /* We parse floats and then convert them to CGFloat to avoid assuming CGFloat is double (which it is, if we are running Lion) */
+    float a, b, c, d, tx, ty;
+    if ( 6 == sscanf( [string UTF8String], "[%f, %f, %f, %f, %f, %f]", &a, &b, &c, &d, &tx, &ty ) )
+        return CGAffineTransformMake( a, b, c, d, tx, ty );
+    return CGAffineTransformIdentity;
+}
+
+
+UIEdgeInsets UIEdgeInsetsFromString( NSString *string )
+{
+    /* We parse floats and then convert them to CGFloat to avoid assuming CGFloat is double (which it is, if we are running Lion) */
+    float top, left, bottom, right;
+    if ( 4 == sscanf( [string UTF8String], "{%f, %f, %f, %f}", &top, &left, &bottom, &right ) )
+        return UIEdgeInsetsMake( top, left, bottom, right );
+    return UIEdgeInsetsZero;
+}
+
 NSString *NSStringFromCGPoint(CGPoint p)
 {
     return NSStringFromPoint(NSPointFromCGPoint(p));
