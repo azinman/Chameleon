@@ -57,6 +57,11 @@
 
 - (UIImage *)_toolbarImage;		// returns a new image which is modified as required for toolbar buttons (turned into a solid color)
 + (UIImage *)_imageFromNSImage:(NSImage *)ns;
+
++ (UIImage *)_sliderMinimumTrackImage;
++ (UIImage *)_sliderMaximumTrackImage;
++ (UIImage *)_sliderThumbImage;
+
 @end
 
 // this is used by stretchable images to break the NSImage into multiple parts
