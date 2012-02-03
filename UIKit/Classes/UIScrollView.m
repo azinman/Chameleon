@@ -176,9 +176,22 @@ const float UIScrollViewDecelerationRateFast = 0.99;
 
 - (void)_updateContentLayout
 {
-    _verticalScroller.contentSize = _contentSize.height;
+    CGFloat deltaX = 0.0f;
+    CGFloat deltaY = 0.0f;
+
+    if (_contentOffset.y < 0)
+        deltaY = _contentOffset.y;
+    else if (_contentOffset.y > _contentSize.height - _verticalScroller.bounds.size.height)
+        deltaY = _contentSize.height - _verticalScroller.bounds.size.height - _contentOffset.y;
+
+    if (_contentOffset.x < 0)
+        deltaX = _contentOffset.x;
+    else if (_contentOffset.x > _contentSize.width - _verticalScroller.bounds.size.width)
+        deltaX = _contentSize.width - _verticalScroller.bounds.size.height - _contentOffset.x;
+
+    _verticalScroller.contentSize = _contentSize.height - deltaY;
     _verticalScroller.contentOffset = _contentOffset.y;
-    _horizontalScroller.contentSize = _contentSize.width;
+    _horizontalScroller.contentSize = _contentSize.width - deltaX;
     _horizontalScroller.contentOffset = _contentOffset.x;
     
     _verticalScroller.hidden = !self._canScrollVertical;
@@ -244,6 +257,7 @@ const float UIScrollViewDecelerationRateFast = 0.99;
 {
     if ([_scrollAnimation animate]) {
         [self _cancelScrollAnimation];
+        [self _updateScrollersAndKeepThemVisible:NO];
     }
 }
 
@@ -348,6 +362,14 @@ const float UIScrollViewDecelerationRateFast = 0.99;
 - (void)setContentOffset:(CGPoint)theOffset animated:(BOOL)animated
 {
     if (animated) {
+        [self _bringScrollersToFront];
+        if (self.contentOffset.x - theOffset.x > 0.5f) {
+            _horizontalScroller.alwaysVisible = YES;
+        }
+        else {
+            _verticalScroller.alwaysVisible = YES;
+        }
+
         UIScrollViewAnimationScroll *animation = [[UIScrollViewAnimationScroll alloc] initWithScrollView:self
                                                                                        fromContentOffset:self.contentOffset
                                                                                          toContentOffset:theOffset
