@@ -207,5 +207,12 @@ static NSString* const kUIMaxValueKey = @"UIMaxValue";
     return CGRectZero; 
 }
 
+#pragma mark - Value Setting
+- (void)setValue:(float)newValue animated:(BOOL)animated
+{
+    // Animation not yet implemented
+    self.value = newValue;
+}
+
 @end
 

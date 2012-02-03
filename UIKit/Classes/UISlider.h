@@ -53,5 +53,5 @@
 - (CGRect)trackRectForBounds:(CGRect)bounds;
 - (CGRect)thumbRectForBounds:(CGRect)bounds trackRect:(CGRect)rect value:(float)value;
 
-
+- (void)setValue:(float)newValue animated:(BOOL)animated;
 @end
