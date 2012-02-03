@@ -67,6 +67,8 @@ typedef enum {
     UISearchDisplayController *_searchDisplayController;
     UIModalTransitionStyle _modalTransitionStyle;
 
+    NSMutableArray *_childViewControllers;
+    
     UITabBarItem *_tabBarItem;
     UITabBarController *_tabBarController;
 }
