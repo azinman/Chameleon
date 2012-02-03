@@ -1067,4 +1067,42 @@ static BOOL _animationsEnabled = YES;
     return [NSString stringWithFormat:@"<%@: %p; frame = %@; hidden = %@; layer = %@>", [self className], self, NSStringFromCGRect(self.frame), (self.hidden ? @"YES" : @"NO"), self.layer];
 }
 
+#pragma mark - NSCoding
+-(id)initWithCoder:(NSCoder *)coder
+{
+    self = [super init];
+    if (self)
+    {
+        if ([coder containsValueForKey:@"UIBounds"]) 
+            self.bounds = CGRectFromString([coder decodeObjectForKey:@"UIBounds"]);
+        
+        if ([coder containsValueForKey:@"UICenter"]) 
+            self.center = CGPointFromString([coder decodeObjectForKey:@"UICenter"]);
+
+        if ([coder containsValueForKey:@"UIBackgroundColor"]) 
+            self.backgroundColor = [coder decodeObjectForKey:@"UIBackgroundColor"];
+        
+        if ([coder containsValueForKey:@"UIOpaque"])
+            self.opaque = [coder decodeBoolForKey:@"UIOpaque"];
+        
+        if ([coder containsValueForKey:@"UIAutoresizeSubviews"])
+            self.autoresizesSubviews = [coder decodeBoolForKey:@"UIAutoresizeSubviews"];
+        
+        if ([coder containsValueForKey:@"UIAutoresizingMask"])
+            self.autoresizingMask = [coder decodeInt32ForKey:@"UIAutoresizingMask"];
+
+    }
+    return self;    
+}
+
+-(void)encodeWithCoder:(NSCoder *)coder
+{
+    [coder encodeObject: NSStringFromCGRect(self.bounds) forKey:@"UIBounds"];
+    [coder encodeObject: NSStringFromCGPoint(self.center) forKey:@"UICenter"];
+    [coder encodeObject: self.backgroundColor forKey:@"UIBackgroundColor"];
+    [coder encodeBool: self.opaque forKey:@"UIOpaque"];
+    [coder encodeBool: self.autoresizesSubviews forKey:@"UIAutoresizeSubviews"];
+    [coder encodeInt32: self.autoresizingMask forKey:@"UIAutoresizingMask"];
+}
+
 @end
