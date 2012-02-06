@@ -29,6 +29,7 @@
 
 #import "UITapGestureRecognizer.h"
 #import "UIGestureRecognizerSubclass.h"
+#import "UITouch.h"
 
 @implementation UITapGestureRecognizer
 @synthesize numberOfTapsRequired=_numberOfTapsRequired, numberOfTouchesRequired=_numberOfTouchesRequired;
@@ -40,6 +41,39 @@
         _numberOfTouchesRequired = 1;
     }
     return self;
+}
+
+- (void)setState:(UIGestureRecognizerState)state
+{
+    [super setState: state];
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    UITouch * touch = [touches anyObject];
+    if (self.state == UIGestureRecognizerStatePossible && touch.tapCount == self.numberOfTapsRequired)
+        self.state = UIGestureRecognizerStateBegan;
+    else
+        self.state = UIGestureRecognizerStateFailed;
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    self.state = UIGestureRecognizerStateFailed;
+}
+
+-(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    UITouch * touch = [touches anyObject];
+    if (self.state != UIGestureRecognizerStateFailed && touch.tapCount == self.numberOfTapsRequired)
+        self.state = UIGestureRecognizerStateRecognized;
+    else
+        self.state = UIGestureRecognizerStateFailed;
+}
+
+-(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    self.state = UIGestureRecognizerStateFailed;
 }
 
 - (BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)preventingGestureRecognizer
