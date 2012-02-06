@@ -48,5 +48,6 @@
 @property (nonatomic, copy) NSArray *items;
 
 - (void)setValue:(id)value forPasteboardType:(NSString *)pasteboardType;
+- (void)addItems:(NSArray *)items;
 
 @end

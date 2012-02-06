@@ -184,10 +184,10 @@ static id FirstObjectOrNil(NSArray *items)
     return FirstObjectOrNil([self colors]);
 }
 
-- (void)setItems:(NSArray *)items
+- (NSMutableArray *)convertPasteboardItems:(NSArray *)items
 {
     NSMutableArray *writeItems = [NSMutableArray arrayWithCapacity:[items count]];
-
+    
     for (id item in items) {
         if ([item isKindOfClass:[UIImage class]]) {
             [writeItems addObject:[item NSImage]];
@@ -197,8 +197,17 @@ static id FirstObjectOrNil(NSArray *items)
             [writeItems addObject:item];
         }
     }
-    
-    [self _writeObjects:writeItems];
+    return writeItems;
+}
+
+- (void)setItems:(NSArray *)items
+{
+    [self _writeObjects: [self convertPasteboardItems:items]];
+}
+
+- (void)addItems:(NSArray *)items
+{
+    [pasteboard writeObjects: [self convertPasteboardItems: items]];
 }
 
 - (NSArray *)items
