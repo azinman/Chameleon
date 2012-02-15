@@ -40,7 +40,9 @@
 #import "UIScrollViewAnimationDeceleration.h"
 #import "UIPanGestureRecognizer.h"
 #import "UIScrollWheelGestureRecognizer.h"
+#import "UIScreenAppKitIntegration.h"
 #import <QuartzCore/QuartzCore.h>
+#import <AppKit/NSEvent.h>
 
 static const NSTimeInterval UIScrollViewAnimationDuration = 0.33;
 static const NSTimeInterval UIScrollViewQuickAnimationDuration = 0.22;
@@ -175,9 +177,22 @@ const float UIScrollViewDecelerationRateFast = 0.99;
 
 - (void)_updateContentLayout
 {
-    _verticalScroller.contentSize = _contentSize.height;
+    CGFloat deltaX = 0.0f;
+    CGFloat deltaY = 0.0f;
+
+    if (_contentOffset.y < 0)
+        deltaY = _contentOffset.y;
+    else if (_contentOffset.y > _contentSize.height - _verticalScroller.bounds.size.height)
+        deltaY = _contentSize.height - _verticalScroller.bounds.size.height - _contentOffset.y;
+
+    if (_contentOffset.x < 0)
+        deltaX = _contentOffset.x;
+    else if (_contentOffset.x > _contentSize.width - _verticalScroller.bounds.size.width)
+        deltaX = _contentSize.width - _verticalScroller.bounds.size.height - _contentOffset.x;
+
+    _verticalScroller.contentSize = _contentSize.height - deltaY;
     _verticalScroller.contentOffset = _contentOffset.y;
-    _horizontalScroller.contentSize = _contentSize.width;
+    _horizontalScroller.contentSize = _contentSize.width - deltaX;
     _horizontalScroller.contentOffset = _contentOffset.x;
     
     _verticalScroller.hidden = !self._canScrollVertical;
@@ -189,6 +204,32 @@ const float UIScrollViewDecelerationRateFast = 0.99;
     self.bounds = bounds;
     
     [self setNeedsLayout];
+}
+
+- (void)_updateScrollersWithPoint:(CGPoint)point andKeepThemVisible:(BOOL)visible
+{
+    _horizontalScroller.alwaysVisible = YES;
+    _verticalScroller.alwaysVisible = YES;
+
+    if (CGRectContainsPoint(_horizontalScroller.frame, point)) {
+        _horizontalScroller.showGutter = YES;
+        _verticalScroller.showGutter = NO;
+    } else if (CGRectContainsPoint(_verticalScroller.frame, point)) {
+        _horizontalScroller.showGutter = NO;
+        _verticalScroller.showGutter = YES;
+    } else {
+        _horizontalScroller.alwaysVisible = visible;
+        _verticalScroller.alwaysVisible = visible;
+    }
+}
+
+- (void)_updateScrollersAndKeepThemVisible:(BOOL)visible
+{
+    const NSPoint mouseLocation = [NSEvent mouseLocation];
+    const CGPoint screenPoint = [self.window.screen convertPoint:NSPointToCGPoint(mouseLocation) fromScreen:nil];
+    const CGPoint windowPoint = [self.window convertPoint:screenPoint fromWindow:nil];
+    const CGPoint point = [self convertPoint:windowPoint fromView:nil];
+    [self _updateScrollersWithPoint:point andKeepThemVisible:visible];
 }
 
 - (void)_cancelScrollAnimation
@@ -204,8 +245,7 @@ const float UIScrollViewDecelerationRateFast = 0.99;
     }
 
     if (_decelerating) {
-        _horizontalScroller.alwaysVisible = NO;
-        _verticalScroller.alwaysVisible = NO;
+        [self _updateScrollersAndKeepThemVisible:NO];
         _decelerating = NO;
         
         if (_delegateCan.scrollViewDidEndDecelerating) {
@@ -218,6 +258,7 @@ const float UIScrollViewDecelerationRateFast = 0.99;
 {
     if ([_scrollAnimation animate]) {
         [self _cancelScrollAnimation];
+        [self _updateScrollersAndKeepThemVisible:NO];
     }
 }
 
@@ -322,6 +363,14 @@ const float UIScrollViewDecelerationRateFast = 0.99;
 - (void)setContentOffset:(CGPoint)theOffset animated:(BOOL)animated
 {
     if (animated) {
+        [self _bringScrollersToFront];
+        if (self.contentOffset.x - theOffset.x > 0.5f) {
+            _horizontalScroller.alwaysVisible = YES;
+        }
+        else {
+            _verticalScroller.alwaysVisible = YES;
+        }
+
         UIScrollViewAnimationScroll *animation = [[UIScrollViewAnimationScroll alloc] initWithScrollView:self
                                                                                        fromContentOffset:self.contentOffset
                                                                                          toContentOffset:theOffset
@@ -373,16 +422,11 @@ const float UIScrollViewDecelerationRateFast = 0.99;
 
 - (void)mouseMoved:(CGPoint)delta withEvent:(UIEvent *)event
 {
-    UITouch *touch = [[event allTouches] anyObject];
-    const CGPoint point = [touch locationInView:self];
-    const CGFloat scrollerSize = UIScrollerWidthForBoundsSize(self.bounds.size);
-    const BOOL shouldShowHorizontal = CGRectContainsPoint(CGRectInset(_horizontalScroller.frame, -scrollerSize, -scrollerSize), point);
-    const BOOL shouldShowVertical = CGRectContainsPoint(CGRectInset(_verticalScroller.frame, -scrollerSize, -scrollerSize), point);
-    const BOOL shouldShowScrollers = (shouldShowVertical || shouldShowHorizontal || _decelerating);
-    
-    _horizontalScroller.alwaysVisible = shouldShowScrollers;
-    _verticalScroller.alwaysVisible = shouldShowScrollers;
-    
+    if (_horizontalScroller.alpha > 0.0f || _verticalScroller.alpha > 0.0f) {
+        UITouch *touch = [[event allTouches] anyObject];
+        const CGPoint point = [touch locationInView:self];
+        [self _updateScrollersWithPoint:point andKeepThemVisible:NO];
+    }
     [super mouseMoved:delta withEvent:event];
 }
 
@@ -460,8 +504,7 @@ const float UIScrollViewDecelerationRateFast = 0.99;
     if (!_dragging) {
         _dragging = YES;
 
-        _horizontalScroller.alwaysVisible = YES;
-        _verticalScroller.alwaysVisible = YES;
+        [self _updateScrollersAndKeepThemVisible:YES];
         
         [self _cancelScrollAnimation];
 
@@ -498,8 +541,8 @@ const float UIScrollViewDecelerationRateFast = 0.99;
                 [_delegate scrollViewWillBeginDecelerating:self];
             }
         } else {
-            _horizontalScroller.alwaysVisible = NO;
-            _verticalScroller.alwaysVisible = NO;
+            [self _updateScrollersAndKeepThemVisible:NO];
+
             [self _confineContent];
         }
     }

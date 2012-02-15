@@ -42,6 +42,9 @@
 {
     [self setWantsLayer:YES];
 
+    if (!_screen)
+        _screen = [[UIScreen alloc] init];
+
     assert(_screen != nil);
     assert([self layer] != nil);
     
@@ -53,7 +56,6 @@
 - (id)initWithFrame:(NSRect)frame
 {
     if ((self = [super initWithFrame:frame])) {
-        _screen = [[UIScreen alloc] init];
         [self configureLayers];
     }
     return self;

@@ -983,8 +983,10 @@ static BOOL _animationsEnabled = YES;
 + (void)commitAnimations
 {
     if ([_animationGroups count] > 0) {
-        [[_animationGroups lastObject] commit];
+        UIViewAnimationGroup *lastGroup = [[_animationGroups lastObject] retain];
         [_animationGroups removeLastObject];
+        [lastGroup commit];
+        [lastGroup release];
     }
 }
 
